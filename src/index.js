@@ -23,7 +23,7 @@ async function sendDocument(bot_token, chat_id, buffer, filename, caption) {
   data.append("chat_id", chat_id);
   data.append("document", new Blob([buffer]), filename);
   data.append("caption", caption.slice(0, 1023);
-  console.log("-> sendDocument", chat_id, filename);
+  console.log("-> sendDocument", chat_id, filename, caption);
   let r = await fetch(`https://api.telegram.org/bot${bot_token}/sendDocument`, {body: data, method: 'POST'});
   console.log("<-", await r.text());
 }

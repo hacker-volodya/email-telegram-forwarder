@@ -23,16 +23,18 @@ async function sendMessage(bot_token, chat_id, text) {
     chat_id: chat_id, 
     text: text.slice(0, 4096)
   });
+  console.log("-> sendMessage", data);
   let r = await fetch(`https://api.telegram.org/bot${bot_token}/sendMessage`, {body: data, method: 'POST'});
-  console.log(await r.text());
+  console.log("<-", await r.text());
 }
 
-async function sendDocument(bot_token, chat_id, file) {
+async function sendDocument(bot_token, chat_id, buffer, filename) {
   const data = new FormData();
   data.append("chat_id", chat_id);
-  data.append("document", file);
+  data.append("document", new Blob([buffer]), filename);
+  console.log("-> sendDocument", data);
   let r = await fetch(`https://api.telegram.org/bot${bot_token}/sendDocument`, {body: data, method: 'POST'});
-  console.log(await r.text());
+  console.log("<-", await r.text());
 }
 
 export default {
@@ -55,6 +57,6 @@ export default {
     text += `\n${parsedEmail.text}`;
 
     await sendMessage(BOT_TOKEN, CHAT_ID, text);
-    await sendDocument(BOT_TOKEN, CHAT_ID, new File(rawEmail, "message.eml"));
+    await sendDocument(BOT_TOKEN, CHAT_ID, rawEmail, new Date().toJSON() + ".eml");
   },
 };

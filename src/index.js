@@ -44,7 +44,7 @@ export default {
     const rawEmail = await streamToArrayBuffer(event.raw, event.rawSize);
     const parser = new PostalMime.default();
     const parsedEmail = await parser.parse(rawEmail);
-    let text = `Subject: ${message.headers.get('subject')}\nFrom: ${message.from}\nTo: ${message.to}\n`
+    let text = `Subject: ${parsedEmail.subject}\nFrom: ${event.from}\nTo: ${event.to}\n`
     if (parsedEmail.attachments.length == 0) {
       text += "No attachments\n";
     } else {

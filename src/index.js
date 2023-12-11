@@ -18,19 +18,11 @@ async function streamToArrayBuffer(stream, streamSize) {
   return result;
 }
 
-async function sendMessage(bot_token, chat_id, text) {
-  const data = new FormData();
-  data.append("chat_id", chat_id);
-  data.append("text", text.slice(0, 4096));
-  console.log("-> sendMessage", chat_id, text.slice(0, 4096);
-  let r = await fetch(`https://api.telegram.org/bot${bot_token}/sendMessage`, {body: data, method: 'POST'});
-  console.log("<-", await r.text());
-}
-
-async function sendDocument(bot_token, chat_id, buffer, filename) {
+async function sendDocument(bot_token, chat_id, buffer, filename, caption) {
   const data = new FormData();
   data.append("chat_id", chat_id);
   data.append("document", new Blob([buffer]), filename);
+  data.append("caption", caption.slice(0, 1023);
   console.log("-> sendDocument", chat_id, filename);
   let r = await fetch(`https://api.telegram.org/bot${bot_token}/sendDocument`, {body: data, method: 'POST'});
   console.log("<-", await r.text());
@@ -54,8 +46,7 @@ export default {
       });
     }
     text += `\n${parsedEmail.text}`;
-
-    await sendMessage(BOT_TOKEN, CHAT_ID, text);
-    await sendDocument(BOT_TOKEN, CHAT_ID, rawEmail, new Date().toJSON() + ".eml");
+    
+    await sendDocument(BOT_TOKEN, CHAT_ID, rawEmail, new Date().toJSON() + ".eml", text);
   },
 };

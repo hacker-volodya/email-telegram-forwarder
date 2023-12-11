@@ -1,7 +1,7 @@
 # Email -> Telegram Forwarder (Cloudflare Email Worker)
 
 ## Usage
-1. Set up github actions secrets, CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID: 
+1. Set up github actions secrets, `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`: 
 > `CLOUDFLARE_API_TOKEN`: Cloudflare -> Profile -> API Tokens -> Create Token -> Use template "Edit Cloudflare Workers" -> Select "Account Resources" and "Zone Resources"
 
 > `CLOUDFLARE_ACCOUNT_ID`: do not set if you have only one cloudflare account, otherwise go to domain settings and get account id from url (`https://dash.cloudflare.com/<your_account_id>/<your_domain>`).

@@ -19,11 +19,10 @@ async function streamToArrayBuffer(stream, streamSize) {
 }
 
 async function sendMessage(bot_token, chat_id, text) {
-  const data = new URLSearchParams({
-    chat_id: chat_id, 
-    text: text.slice(0, 4096)
-  });
-  console.log("-> sendMessage", data);
+  const data = new FormData();
+  data.append("chat_id", chat_id);
+  data.append("text", text.slice(0, 4096));
+  console.log("-> sendMessage", chat_id, text.slice(0, 4096);
   let r = await fetch(`https://api.telegram.org/bot${bot_token}/sendMessage`, {body: data, method: 'POST'});
   console.log("<-", await r.text());
 }
@@ -32,7 +31,7 @@ async function sendDocument(bot_token, chat_id, buffer, filename) {
   const data = new FormData();
   data.append("chat_id", chat_id);
   data.append("document", new Blob([buffer]), filename);
-  console.log("-> sendDocument", data);
+  console.log("-> sendDocument", chat_id, filename);
   let r = await fetch(`https://api.telegram.org/bot${bot_token}/sendDocument`, {body: data, method: 'POST'});
   console.log("<-", await r.text());
 }

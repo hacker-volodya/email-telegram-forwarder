@@ -20,38 +20,32 @@ async function streamToArrayBuffer(stream, streamSize) {
 
 export default {
   async email(event, env, ctx) {
+    // environments must be configured in Cloudflare
+    const BOT_TOKEN = env.BOT_TOKEN;
+    const CHAT_ID = env.CHAT_ID;
+
     const rawEmail = await streamToArrayBuffer(event.raw, event.rawSize);
     const parser = new PostalMime.default();
     const parsedEmail = await parser.parse(rawEmail);
-    console.log("Mail subject: ", parsedEmail.subject);
-    console.log("Mail message ID", parsedEmail.messageId);
-    console.log("HTML version of Email: ", parsedEmail.html);
-    console.log("Text version of Email: ", parsedEmail.text);
+    let text = `Subject: ${message.headers.get('subject')}\nFrom: ${message.from}\nTo: ${message.to}\n`
     if (parsedEmail.attachments.length == 0) {
-      console.log("No attachments");
+      text += "No attachments\n";
     } else {
       parsedEmail.attachments.forEach((att) => {
-        console.log("Attachment: ", att.filename);
-        console.log("Attachment disposition: ", att.disposition);
-        console.log("Attachment mime type: ", att.mimeType);
-        console.log("Attachment size: ", att.content.byteLength);
+        text += `Attachment: ${att.filename}, disp: ${att.disposition}, mime: ${att.mimeType}, size: ${att.content.byteLength}\n`;
       });
     }
-
-    const msg = createMimeMessage();
-    msg.setSender({ name: "Auto-replier", addr: event.to });
-    msg.setRecipient(event.from);
-    msg.setSubject(`Re: ${parsedEmail.subject}`);
-    msg.setHeader("In-Reply-To", parsedEmail.messageId);
-    msg.addMessage({
-      contentType: "text/plain",
-      data: `This is an automated reply to your email with the subject ${parsedEmail.subject}.
-Number of attachments: ${parsedEmail.attachments.length}.
-
-good bye.`,
+    text += `\n${parsedEmail.text}`;
+    const data = new URLSearchParams({
+      chat_id: CHAT_ID, 
+      text: text.slice(0, 4096)
     });
-
-    var message = new EmailMessage(event.to, event.from, msg.asRaw());
-    await event.reply(message);
+    let r = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {body: data, method: 'POST'});
+    console.log(await r.text());
+    const data = new FormData();
+    data.append("chat_id", CHAT_ID);
+    data.append("document", new File(rawEmail, "message.eml"));
+    let r = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendDocument`, {body: data, method: 'POST'});
+    console.log(await r.text());
   },
 };

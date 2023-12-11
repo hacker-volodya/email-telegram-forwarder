@@ -18,6 +18,23 @@ async function streamToArrayBuffer(stream, streamSize) {
   return result;
 }
 
+async function sendMessage(bot_token, chat_id, text) {
+  const data = new URLSearchParams({
+    chat_id: chat_id, 
+    text: text.slice(0, 4096)
+  });
+  let r = await fetch(`https://api.telegram.org/bot${bot_token}/sendMessage`, {body: data, method: 'POST'});
+  console.log(await r.text());
+}
+
+async function sendDocument(bot_token, chat_id, file) {
+  const data = new FormData();
+  data.append("chat_id", chat_id);
+  data.append("document", file);
+  let r = await fetch(`https://api.telegram.org/bot${bot_token}/sendDocument`, {body: data, method: 'POST'});
+  console.log(await r.text());
+}
+
 export default {
   async email(event, env, ctx) {
     // environments must be configured in Cloudflare
@@ -36,16 +53,8 @@ export default {
       });
     }
     text += `\n${parsedEmail.text}`;
-    const data = new URLSearchParams({
-      chat_id: CHAT_ID, 
-      text: text.slice(0, 4096)
-    });
-    let r = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {body: data, method: 'POST'});
-    console.log(await r.text());
-    const data = new FormData();
-    data.append("chat_id", CHAT_ID);
-    data.append("document", new File(rawEmail, "message.eml"));
-    let r = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendDocument`, {body: data, method: 'POST'});
-    console.log(await r.text());
+
+    await sendMessage(BOT_TOKEN, CHAT_ID, text);
+    await sendDocument(BOT_TOKEN, CHAT_ID, new File(rawEmail, "message.eml"));
   },
 };
